@@ -1,41 +1,46 @@
 import psycopg2
 
-conn = psycopg2.connect(
-    host='localhost',
-    user='postgres',
-    password='brendan'
-)
+def create_user(username):
+    exist = find_user(username)
+    if not exist:
+        print('creating new user')
+        with con:
+            with con.cursor() as curs:
+                sql = """INSERT INTO user_information (username) VALUES (%s);"""
+                curs.execute(sql, (username,))
+    else:
+        print('User already exists')
+
+
+def find_user(username):
+    with con:
+        with con.cursor() as curs:
+            sql = """SELECT * from user_information WHERE username LIKE (%s)"""
+            curs.execute(sql, (username,))
+            rows = curs.fetchall()
+    if len(rows) > 0:
+        return True
+    else:
+        return False
 
 
 
-conn.close()
+if __name__ == '__main__':
+    con = psycopg2.connect(
+        host = 'localhost',
+        database ='messaging_project',
+        user = 'postgres',
+        password = 'brendan',
+        port = '5432',
+        # autocommit = True
+    )
 
-# # connect to the db
-# con = psycopg2.connect(
-#     host = 'localhost',
-#     database ='messages_project',
-#     user = 'postgres',
-#     password = 'brendan',
-#     port = '5432'
-# )
+    username = 'lewis'
+    create_user(username)
 
-# # cursor
-# # client-side: allocate memory for everything (pull everything from server to client then start processing)
-# # server-side: create cursor but do not obtain anything until they are asked for
-# cur = con.cursor()
 
-# # execute query
-# cur.execute('select text, user from messages')
 
-# rows = cur.fetchall()
-
-# for r in rows:
-#     print(f'user: {r[1]} message: {r[0]}')
-
-# # close the cursor
-# cur.close()
-# # close the connection
-# con.close()
+    con.close()
 
 
 
